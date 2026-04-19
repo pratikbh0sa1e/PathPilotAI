@@ -6,17 +6,28 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { useProfile } from "@/lib/profile-context";
 
 const FIELDS = [
   "Computer Science",
   "Data Science",
-  "Engineering",
+  "Artificial Intelligence",
+  "Software Engineering",
+  "Electrical Engineering",
+  "Mechanical Engineering",
   "Business",
-  "Medicine",
-  "AI / ML",
+  "MBA",
   "Finance",
+  "Medicine",
+  "Pharmacy",
+  "Law",
+  "Architecture",
+  "Design",
+  "Psychology",
+  "Education",
   "Other",
 ];
+
 const COUNTRIES = [
   "Germany",
   "Canada",
@@ -25,11 +36,19 @@ const COUNTRIES = [
   "Australia",
   "Netherlands",
   "Sweden",
-  "Other",
+  "Norway",
+  "Finland",
+  "Denmark",
+  "France",
+  "Singapore",
+  "Japan",
+  "New Zealand",
+  "Ireland",
 ];
 
 export default function SignupPage() {
   const router = useRouter();
+  const { login } = useProfile();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -64,8 +83,22 @@ export default function SignupPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    // Simulate registration — replace with real auth
-    await new Promise((r) => setTimeout(r, 1200));
+    await new Promise((r) => setTimeout(r, 800));
+
+    // Save real user data to context + localStorage
+    login({
+      name: form.name,
+      email: form.email,
+      gpa: form.gpa,
+      field_of_study: form.field,
+      target_countries: form.country ? [form.country] : [],
+      goals: form.goals,
+      budget_range: "",
+      test_score: "",
+      activities: [],
+      target_universities: "",
+    });
+
     setLoading(false);
     router.push("/dashboard");
   };
@@ -127,9 +160,8 @@ export default function SignupPage() {
         <CardContent className="px-8 pb-8">
           {step === 1 ? (
             <form onSubmit={handleStep1} className="space-y-4">
-              {/* Name */}
               <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block tracking-wide">
+                <label className="text-xs font-medium text-slate-600 mb-1.5 block">
                   Full Name
                 </label>
                 <div className="relative">
@@ -141,14 +173,12 @@ export default function SignupPage() {
                     value={form.name}
                     onChange={(e) => set("name", e.target.value)}
                     placeholder="Your full name"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent"
                   />
                 </div>
               </div>
-
-              {/* Email */}
               <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block tracking-wide">
+                <label className="text-xs font-medium text-slate-600 mb-1.5 block">
                   Email Address
                 </label>
                 <div className="relative">
@@ -160,14 +190,12 @@ export default function SignupPage() {
                     value={form.email}
                     onChange={(e) => set("email", e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent"
                   />
                 </div>
               </div>
-
-              {/* Password */}
               <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block tracking-wide">
+                <label className="text-xs font-medium text-slate-600 mb-1.5 block">
                   Password
                 </label>
                 <div className="relative">
@@ -179,7 +207,7 @@ export default function SignupPage() {
                     value={form.password}
                     onChange={(e) => set("password", e.target.value)}
                     placeholder="Min. 6 characters"
-                    className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent"
                   />
                   <button
                     type="button"
@@ -192,7 +220,6 @@ export default function SignupPage() {
                   </button>
                 </div>
               </div>
-
               {error && (
                 <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
                   <span className="material-symbols-outlined text-[16px] text-red-500">
@@ -201,10 +228,9 @@ export default function SignupPage() {
                   <p className="text-xs text-red-600">{error}</p>
                 </div>
               )}
-
               <Button
                 type="submit"
-                className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2.5 rounded-xl shadow-sm shadow-violet-200 text-sm font-medium tracking-wide mt-2"
+                className="w-full bg-violet-600 hover:bg-violet-700 text-white py-2.5 rounded-xl shadow-sm shadow-violet-200 text-sm font-medium mt-2"
               >
                 <span className="material-symbols-outlined text-[18px] mr-2">
                   arrow_forward
@@ -214,9 +240,8 @@ export default function SignupPage() {
             </form>
           ) : (
             <form onSubmit={handleStep2} className="space-y-4">
-              {/* GPA */}
               <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block tracking-wide">
+                <label className="text-xs font-medium text-slate-600 mb-1.5 block">
                   GPA (0–10)
                 </label>
                 <div className="relative">
@@ -231,14 +256,12 @@ export default function SignupPage() {
                     min="0"
                     max="10"
                     step="0.1"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent"
                   />
                 </div>
               </div>
-
-              {/* Field */}
               <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block tracking-wide">
+                <label className="text-xs font-medium text-slate-600 mb-1.5 block">
                   Field of Study
                 </label>
                 <div className="relative">
@@ -248,7 +271,7 @@ export default function SignupPage() {
                   <select
                     value={form.field}
                     onChange={(e) => set("field", e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all appearance-none"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent appearance-none"
                   >
                     <option value="">Select field...</option>
                     {FIELDS.map((f) => (
@@ -257,10 +280,8 @@ export default function SignupPage() {
                   </select>
                 </div>
               </div>
-
-              {/* Country */}
               <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block tracking-wide">
+                <label className="text-xs font-medium text-slate-600 mb-1.5 block">
                   Target Country
                 </label>
                 <div className="relative">
@@ -270,7 +291,7 @@ export default function SignupPage() {
                   <select
                     value={form.country}
                     onChange={(e) => set("country", e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all appearance-none"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent appearance-none"
                   >
                     <option value="">Select country...</option>
                     {COUNTRIES.map((c) => (
@@ -279,10 +300,8 @@ export default function SignupPage() {
                   </select>
                 </div>
               </div>
-
-              {/* Goals */}
               <div>
-                <label className="text-xs font-medium text-slate-600 mb-1.5 block tracking-wide">
+                <label className="text-xs font-medium text-slate-600 mb-1.5 block">
                   Goals <span className="text-slate-400">(optional)</span>
                 </label>
                 <div className="relative">
@@ -294,11 +313,10 @@ export default function SignupPage() {
                     onChange={(e) => set("goals", e.target.value)}
                     placeholder="e.g. MS in AI at TU Munich"
                     rows={2}
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent transition-all resize-none"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-transparent resize-none"
                   />
                 </div>
               </div>
-
               {error && (
                 <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5">
                   <span className="material-symbols-outlined text-[16px] text-red-500">
@@ -307,7 +325,6 @@ export default function SignupPage() {
                   <p className="text-xs text-red-600">{error}</p>
                 </div>
               )}
-
               <div className="flex gap-3">
                 <Button
                   type="button"
@@ -323,7 +340,7 @@ export default function SignupPage() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-white rounded-xl shadow-sm shadow-violet-200 text-sm font-medium tracking-wide"
+                  className="flex-1 bg-violet-600 hover:bg-violet-700 text-white rounded-xl shadow-sm shadow-violet-200 text-sm font-medium"
                 >
                   {loading ? (
                     <>
@@ -344,22 +361,20 @@ export default function SignupPage() {
           )}
 
           <Separator className="my-5 bg-slate-100" />
-
           <p className="text-center text-sm text-slate-500">
             {step === 1 ? (
               <>
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="text-violet-600 hover:text-violet-700 font-medium transition-colors"
+                  className="text-violet-600 hover:text-violet-700 font-medium"
                 >
                   Sign in
                 </Link>
               </>
             ) : (
               <span className="text-xs text-slate-400">
-                By signing up you agree to our Terms of Service and Privacy
-                Policy.
+                By signing up you agree to our Terms of Service.
               </span>
             )}
           </p>
