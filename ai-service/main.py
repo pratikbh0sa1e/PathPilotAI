@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import journey, chat, agent, roi, loan, nudges
+from routes import journey, chat, agent, roi, loan, nudges, timeline
 import os
 from dotenv import load_dotenv
 
@@ -29,6 +29,7 @@ app.include_router(agent.router, tags=["Agent"])
 app.include_router(roi.router, tags=["ROI"])
 app.include_router(loan.router, tags=["Loan"])
 app.include_router(nudges.router, tags=["Nudges"])
+app.include_router(timeline.router, tags=["Timeline & Documents"])
 
 @app.get("/health")
 def health():
