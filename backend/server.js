@@ -5,6 +5,7 @@ require("dotenv").config();
 const logger = require("./middleware/logger");
 const { apiLimiter } = require("./middleware/rateLimiter");
 const { errorHandler, notFound } = require("./middleware/errorHandler");
+const { seedGuestUser } = require("./services/seedService");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,7 +14,7 @@ const PORT = process.env.PORT || 5000;
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
@@ -32,6 +33,11 @@ app.get("/health", (req, res) => {
   });
 });
 
+// HEAD /health — for uptime monitors and load balancers (no body, just 200)
+app.head("/health", (req, res) => {
+  res.status(200).end();
+});
+
 // ── API routes ────────────────────────────────────────────────────────────────
 app.use("/api", require("./routes/api"));
 
@@ -40,7 +46,7 @@ app.use(notFound);
 app.use(errorHandler);
 
 // ── Start ─────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`\n🚀 PathPilot Backend running on port ${PORT}`);
   console.log(`   Health:  http://localhost:${PORT}/health`);
   console.log(`   API:     http://localhost:${PORT}/api`);
@@ -48,6 +54,9 @@ app.listen(PORT, () => {
   console.log(`   Journey: POST http://localhost:${PORT}/api/journey`);
   console.log(`   Loan:    POST http://localhost:${PORT}/api/loan`);
   console.log(`   ROI:     POST http://localhost:${PORT}/api/roi\n`);
+
+  // Seed default data (runs only if guest doesn't exist yet)
+  await seedGuestUser();
 });
 
 module.exports = app;
