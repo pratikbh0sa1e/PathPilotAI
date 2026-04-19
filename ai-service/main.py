@@ -13,10 +13,17 @@ app = FastAPI(
     description="AI-powered study abroad mentoring with LangChain + Groq"
 )
 
-# CORS middleware for frontend integration
+# CORS — reads from env for production, falls back to localhost for dev
+allowed_origins = [
+    os.getenv("FRONTEND_URL", "http://localhost:3000"),
+    os.getenv("BACKEND_URL", "http://localhost:5000"),
+    "http://localhost:3000",
+    "http://localhost:5000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5000"],  # Frontend and backend
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,7 +40,7 @@ app.include_router(timeline.router, tags=["Timeline & Documents"])
 
 @app.get("/health")
 def health():
-    """Health check endpoint"""
+    """Health check — GET returns full status JSON"""
     groq_configured = bool(os.getenv('GROQ_API_KEY'))
     return {
         "status": "ok",
@@ -47,6 +54,11 @@ def health():
             "groq_model": os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
         }
     }
+
+@app.head("/health")
+def health_head():
+    """Health check — HEAD for uptime monitors (no body, just 200)"""
+    return {}
 
 @app.get("/")
 def root():
