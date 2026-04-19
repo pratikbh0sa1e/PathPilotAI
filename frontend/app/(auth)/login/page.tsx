@@ -1,19 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import { useProfile } from "@/lib/profile-context";
+
 export default function LoginPage() {
   const router = useRouter();
+  const { login, isLoggedIn } = useProfile();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  // Already logged in → go to dashboard
+  useEffect(() => {
+    if (isLoggedIn) router.replace("/dashboard");
+  }, [isLoggedIn, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,8 +31,8 @@ export default function LoginPage() {
     }
     setLoading(true);
     setError("");
-    // Simulate auth — replace with real auth (Supabase, NextAuth, etc.)
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 800));
+    login({ email });
     setLoading(false);
     router.push("/dashboard");
   };
@@ -139,14 +147,17 @@ export default function LoginPage() {
 
           <Separator className="my-6 bg-slate-100" />
 
-          {/* Social login placeholder */}
+          {/* Continue as Guest */}
           <Button
             variant="outline"
             className="w-full border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => {
+              login({ name: "Guest", email: "guest@pathpilot.ai" });
+              router.push("/dashboard");
+            }}
           >
             <span className="material-symbols-outlined text-[18px] mr-2 text-slate-500">
-              account_circle
+              person_outline
             </span>
             Continue as Guest
           </Button>
