@@ -11,6 +11,10 @@ const loanController = require("../controllers/loanController");
 const roiController = require("../controllers/roiController");
 const agentController = require("../controllers/agentController");
 const nudgesController = require("../controllers/nudgesController");
+const timelineController = require("../controllers/timelineController");
+const gamificationController = require("../controllers/gamificationController");
+const chatSessionController = require("../controllers/chatSessionController");
+const profileController = require("../controllers/profileController");
 
 // ── API info ──────────────────────────────────────────────────────────────────
 router.get("/", (req, res) => {
@@ -173,6 +177,70 @@ router.post(
   ],
   validate,
   nudgesController.nudges,
+);
+
+// ── /api/timeline ─────────────────────────────────────────────────────────────
+router.post(
+  "/timeline",
+  aiLimiter,
+  [body("profile").notEmpty().isObject()],
+  validate,
+  timelineController.timeline,
+);
+
+// ── /api/documents/checklist ──────────────────────────────────────────────────
+router.post(
+  "/documents/checklist",
+  aiLimiter,
+  [body("profile").notEmpty().isObject()],
+  validate,
+  timelineController.checklist,
+);
+
+// ── /api/documents/sop ────────────────────────────────────────────────────────
+router.post(
+  "/documents/sop",
+  aiLimiter,
+  [body("profile").notEmpty().isObject()],
+  validate,
+  timelineController.sop,
+);
+
+// ── /api/profile ──────────────────────────────────────────────────────────────
+router.get("/profile/:userId", profileController.getProfile);
+router.post("/profile/:userId", profileController.saveProfile);
+
+// ── /api/gamification ─────────────────────────────────────────────────────────
+router.get("/gamification/:userId", gamificationController.getState);
+
+router.post(
+  "/gamification/track",
+  [
+    body("userId").notEmpty().withMessage("userId is required"),
+    body("actionId").optional().isString(),
+  ],
+  validate,
+  gamificationController.track,
+);
+
+// ── /api/chat/sessions — ChatGPT-style session management ─────────────────────
+router.get("/chat/sessions", chatSessionController.getSessions);
+router.post("/chat/sessions", chatSessionController.createSession);
+router.patch("/chat/sessions/:sessionId", chatSessionController.updateSession);
+router.delete("/chat/sessions/:sessionId", chatSessionController.deleteSession);
+router.get(
+  "/chat/sessions/:sessionId/messages",
+  chatSessionController.getMessages,
+);
+router.post(
+  "/chat/sessions/:sessionId/message",
+  aiLimiter,
+  [
+    body("message").notEmpty().withMessage("message is required"),
+    body("userId").notEmpty().withMessage("userId is required"),
+  ],
+  validate,
+  chatSessionController.sendMessage,
 );
 
 module.exports = router;
