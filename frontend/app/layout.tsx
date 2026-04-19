@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geologica } from "next/font/google";
 import "./globals.css";
+import { ProfileProvider } from "@/lib/profile-context";
 
 const geologica = Geologica({
   subsets: ["latin"],
@@ -25,7 +26,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full bg-slate-50 text-slate-900 antialiased font-[family-name:var(--font-geologica)]">
-        {children}
+        <ProfileProvider>{children}</ProfileProvider>
       </body>
     </html>
   );
