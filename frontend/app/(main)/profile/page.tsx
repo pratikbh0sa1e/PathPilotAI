@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useProfile } from "@/lib/profile-context";
 
 const FIELDS = [
   "Computer Science",
@@ -76,20 +77,33 @@ interface Profile {
 }
 
 const DEFAULT_PROFILE: Profile = {
-  name: "Student",
-  email: "student@example.com",
-  gpa: "8.5",
-  field_of_study: "Computer Science",
-  target_countries: ["Germany", "Canada"],
-  target_universities: "TU Munich, University of Toronto",
-  budget_range: "limited",
-  goals: "MS in Artificial Intelligence",
-  test_score: "GRE 320",
-  activities: ["internship at tech company", "research project on NLP"],
+  name: "",
+  email: "",
+  gpa: "",
+  field_of_study: "",
+  target_countries: [],
+  target_universities: "",
+  budget_range: "",
+  goals: "",
+  test_score: "",
+  activities: [],
 };
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
+  const { profile: ctxProfile, setProfile: saveToContext } = useProfile();
+
+  const [profile, setProfile] = useState<Profile>({
+    name: ctxProfile.name || "",
+    email: ctxProfile.email || "",
+    gpa: ctxProfile.gpa || "",
+    field_of_study: ctxProfile.field_of_study || "",
+    target_countries: ctxProfile.target_countries || [],
+    target_universities: ctxProfile.target_universities || "",
+    budget_range: ctxProfile.budget_range || "",
+    goals: ctxProfile.goals || "",
+    test_score: ctxProfile.test_score || "",
+    activities: ctxProfile.activities || [],
+  });
   const [saved, setSaved] = useState(false);
   const [activityInput, setActivityInput] = useState("");
   const [activeTab, setActiveTab] = useState<"academic" | "goals" | "account">(
@@ -121,6 +135,19 @@ export default function ProfilePage() {
     );
 
   const handleSave = async () => {
+    // Persist to context + localStorage
+    saveToContext({
+      name: profile.name,
+      email: profile.email,
+      gpa: profile.gpa,
+      field_of_study: profile.field_of_study,
+      target_countries: profile.target_countries,
+      target_universities: profile.target_universities,
+      budget_range: profile.budget_range,
+      goals: profile.goals,
+      test_score: profile.test_score,
+      activities: profile.activities,
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
