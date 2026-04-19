@@ -15,12 +15,10 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 
 from supabase import create_client, Client
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.messages import HumanMessage, AIMessage
 
 logger = logging.getLogger(__name__)
 
-# Lightweight embedding model — no GPU needed, fast inference
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 
@@ -28,6 +26,7 @@ class MemoryService:
     """
     Persistent memory layer using Supabase + pgvector.
     Falls back gracefully to in-memory if Supabase is not configured.
+    Embeddings are lazy-loaded only if sentence-transformers is installed.
     """
 
     def __init__(self):
@@ -35,18 +34,26 @@ class MemoryService:
         self._embeddings = None
         self._available = False
 
-        # Try to initialize Supabase
         url = os.getenv("SUPABASE_URL")
         key = os.getenv("SUPABASE_KEY")
 
         if url and key:
             try:
                 self._supabase = create_client(url, key)
-                self._embeddings = HuggingFaceEmbeddings(
-                    model_name=EMBEDDING_MODEL,
-                    model_kwargs={"device": "cpu"},
-                    encode_kwargs={"normalize_embeddings": True}
-                )
+                # Try to load embeddings — only works if sentence-transformers is installed
+                # Skipped on low-memory deployments (removes PyTorch dependency)
+                try:
+                    from langchain_huggingface import HuggingFaceEmbeddings
+                    self._embeddings = HuggingFaceEmbeddings(
+                        model_name=EMBEDDING_MODEL,
+                        model_kwargs={"device": "cpu"},
+                        encode_kwargs={"normalize_embeddings": True}
+                    )
+                    logger.info("✅ Embeddings loaded (semantic search enabled)")
+                except ImportError:
+                    logger.info("ℹ️  sentence-transformers not installed — semantic search disabled (chat history still works)")
+                    self._embeddings = None
+
                 self._available = True
                 logger.info("✅ Memory service initialized with Supabase")
             except Exception as e:
