@@ -28,7 +28,7 @@ export default function AuthLayout({
 
       {/* Footer */}
       <p className="text-center text-xs text-slate-400 py-4">
-        © 2025 PathPilot AI. All rights reserved.
+        © 2026 PathPilot AI. All rights reserved.
       </p>
     </div>
   );
