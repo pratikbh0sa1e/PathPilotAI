@@ -306,7 +306,7 @@ export default function LandingPage() {
           </span>
         </div>
         <p className="text-xs text-slate-500">
-          © 2025 PathPilot. AI-powered study abroad guidance.
+          © 2026 PathPilot. AI-powered study abroad guidance.
         </p>
       </footer>
     </div>
