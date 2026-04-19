@@ -33,5 +33,8 @@ module.exports = {
   roi: (body) => client.post("/ai/roi", body),
   agent: (body) => client.post("/ai/agent", body),
   nudges: (body) => client.post("/ai/nudges", body),
+  timeline: (body) => client.post("/ai/timeline", body),
+  checklist: (body) => client.post("/ai/documents/checklist", body),
+  sop: (body) => client.post("/ai/documents/sop", body),
   health: () => client.get("/health"),
 };
