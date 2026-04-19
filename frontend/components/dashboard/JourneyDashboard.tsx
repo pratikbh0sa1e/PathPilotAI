@@ -8,15 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import ScoreRing from "./ScoreRing";
 import InsightCard from "./InsightCard";
 import NudgeBar from "./NudgeBar";
-import { api, UserProfile, JourneyResponse, NudgeItem } from "@/lib/api";
-
-const DEMO_PROFILE: UserProfile = {
-  gpa: 8.5,
-  field_of_study: "Computer Science",
-  target_countries: ["Germany", "Canada"],
-  goals: "MS in Artificial Intelligence",
-  budget_range: "limited",
-};
+import { api, JourneyResponse, NudgeItem } from "@/lib/api";
+import { useProfile } from "@/lib/profile-context";
 
 const DEMO_ACTIVITIES = [
   "internship at tech company",
@@ -26,18 +19,34 @@ const DEMO_ACTIVITIES = [
 ];
 
 export default function JourneyDashboard() {
+  const { profile } = useProfile();
   const [journey, setJourney] = useState<JourneyResponse | null>(null);
   const [nudges, setNudges] = useState<NudgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Build API profile from context
+  const apiProfile = {
+    gpa: profile.gpa ? parseFloat(profile.gpa) : undefined,
+    field_of_study: profile.field_of_study || undefined,
+    target_countries: profile.target_countries.length
+      ? profile.target_countries
+      : undefined,
+    goals: profile.goals || undefined,
+    budget_range: profile.budget_range || undefined,
+  };
+
+  const activities = profile.activities.length
+    ? profile.activities
+    : DEMO_ACTIVITIES;
 
   const load = async (showRefresh = false) => {
     if (showRefresh) setRefreshing(true);
     else setLoading(true);
     try {
       const [journeyData, nudgeData] = await Promise.all([
-        api.journey(DEMO_PROFILE, DEMO_ACTIVITIES, true),
-        api.nudges(DEMO_PROFILE, ["journey"], undefined),
+        api.journey(apiProfile, activities, true),
+        api.nudges(apiProfile, ["journey"], undefined),
       ]);
       setJourney(journeyData);
       setNudges(nudgeData.nudges ?? []);
@@ -75,8 +84,8 @@ export default function JourneyDashboard() {
             Your Journey
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            {DEMO_PROFILE.field_of_study} →{" "}
-            {DEMO_PROFILE.target_countries?.join(", ")}
+            {profile.field_of_study || "Add your field of study"} →{" "}
+            {profile.target_countries?.join(", ") || "Add target countries"}
           </p>
         </div>
         <Button
